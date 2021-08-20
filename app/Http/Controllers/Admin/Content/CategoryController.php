@@ -38,7 +38,7 @@ class CategoryController extends Controller
             $this->validation($request, 'store');
 
 //            STORE IMAGE FILE
-            $image_name = $request->image->getClientOriginalName();
+            $image_name =$request->name . $request->image->getClientOriginalName();
             $request->file('image')->storeAs('images', $image_name, 'public');
 
 //            PREPARE AND STORE TAGS
@@ -94,7 +94,7 @@ class CategoryController extends Controller
             //            STORE IMAGE FILE
             if ($request->hasFile('image')) {
                 File::delete("storage/images/" . $postCategory->image);
-                $image_name = $request->image->getClientOriginalName();
+                $image_name = $request->name . $request->image->getClientOriginalName();
                 $request->file('image')->storeAs('images', $image_name, 'public');
             } else {
                 $image_name = $postCategory->image;
