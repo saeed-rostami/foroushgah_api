@@ -4,8 +4,51 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4da07ab7b8253b54f0ece67160092e51",
+    "content-hash": "76b2df710c872427a64a314823b9b3a0",
     "packages": [
+        {
+            "name": "adamtyn/lumen-artisan-storage-link",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/AdamTyn/lumen-artisan-storage-link.git",
+                "reference": "4da0998ac2c2811c0e85090c5c66479f2f64d416"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/AdamTyn/lumen-artisan-storage-link/zipball/4da0998ac2c2811c0e85090c5c66479f2f64d416",
+                "reference": "4da0998ac2c2811c0e85090c5c66479f2f64d416",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "AdamTyn\\Lumen\\Artisan\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "AdamTyn",
+                    "email": "tynadam@foxmail.com"
+                }
+            ],
+            "description": "移植Laravel的 `php artisan storage:link` [生成符号连接]指令到Lumen",
+            "keywords": [
+                "adamtyn",
+                "framework",
+                "laravel",
+                "lumen"
+            ],
+            "support": {
+                "issues": "https://github.com/AdamTyn/lumen-artisan-storage-link/issues",
+                "source": "https://github.com/AdamTyn/lumen-artisan-storage-link/tree/v1.0.0"
+            },
+            "time": "2020-09-27T04:33:15+00:00"
+        },
         {
             "name": "brick/math",
             "version": "0.9.2",

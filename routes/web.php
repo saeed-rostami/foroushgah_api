@@ -13,6 +13,19 @@
 |
 */
 
+use App\Http\Controllers\Admin\Content\CategoryController;
+
 $router->get('/', function () use ($router) {
     return $router->app->version();
+});
+
+$router->group(['namespace' => 'Admin', 'prefix' => 'admin'], function () use ($router) {
+    $router->group(['namespace' => 'Content', 'prefix' => 'content'], function () use ($router) {
+        $router->group(['prefix' => 'category'], function () use ($router) {
+            $router->get('/', 'CategoryController@index');
+            $router->delete('/{id}', 'CategoryController@destroy');
+            $router->post('/', 'CategoryController@store');
+            $router->put('/{id}', 'CategoryController@update');
+        });
+    });
 });

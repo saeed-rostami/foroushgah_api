@@ -22,11 +22,11 @@ date_default_timezone_set(env('APP_TIMEZONE', 'UTC'));
 $app = new Laravel\Lumen\Application(
     dirname(__DIR__)
 );
+//$app->configure('filesystem');
+//class_alias('Illuminate\Support\Facades\Storage', 'Storage');
 
-// $app->withFacades();
-
-// $app->withEloquent();
-
+$app->withFacades();
+$app->withEloquent();
 /*
 |--------------------------------------------------------------------------
 | Register Container Bindings
@@ -58,7 +58,6 @@ $app->singleton(
 | the default version. You may register other files below as needed.
 |
 */
-
 $app->configure('app');
 
 /*
@@ -72,9 +71,10 @@ $app->configure('app');
 |
 */
 
-// $app->middleware([
+$app->middleware([
 //     App\Http\Middleware\ExampleMiddleware::class
-// ]);
+    App\Http\Middleware\CorsMiddleware::class
+]);
 
 // $app->routeMiddleware([
 //     'auth' => App\Http\Middleware\Authenticate::class,
