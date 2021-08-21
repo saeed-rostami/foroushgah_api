@@ -22,8 +22,10 @@ date_default_timezone_set(env('APP_TIMEZONE', 'UTC'));
 $app = new Laravel\Lumen\Application(
     dirname(__DIR__)
 );
+
 //$app->configure('filesystem');
 //class_alias('Illuminate\Support\Facades\Storage', 'Storage');
+class_alias(Intervention\Image\Facades\Image::class, 'Image');
 
 $app->withFacades();
 $app->withEloquent();
@@ -95,7 +97,8 @@ $app->middleware([
 $app->register(Irazasyed\Larasupport\Providers\ArtisanServiceProvider::class);
 //LumenGenerator
 $app->register(Flipbox\LumenGenerator\LumenGeneratorServiceProvider::class);
-
+//Intervention
+$app->register(Intervention\Image\ImageServiceProvider::class);
 
 // $app->register(App\Providers\AppServiceProvider::class);
 // $app->register(App\Providers\AuthServiceProvider::class);

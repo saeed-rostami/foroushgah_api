@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Intervention\Image\Facades\Image;
 
 class CategoryController extends Controller
 {
@@ -38,7 +39,7 @@ class CategoryController extends Controller
             $this->validation($request, 'store');
 
 //            STORE IMAGE FILE
-            $image_name =$request->name . $request->image->getClientOriginalName();
+            $image_name = $request->name . $request->image->getClientOriginalName();
             $request->file('image')->storeAs('images', $image_name, 'public');
 
 //            PREPARE AND STORE TAGS
@@ -54,6 +55,8 @@ class CategoryController extends Controller
             $postCategory->image = $image_name;
             $postCategory->save();
 
+            $img = Image::make('storage/images/'.$image_name)->resize('525', '295');
+            $img->save();
 
 //RESPONSE
             return response()->json([
@@ -96,6 +99,8 @@ class CategoryController extends Controller
                 File::delete("storage/images/" . $postCategory->image);
                 $image_name = $request->name . $request->image->getClientOriginalName();
                 $request->file('image')->storeAs('images', $image_name, 'public');
+                $img = Image::make('storage/images/'.$image_name)->resize('525', '295');
+                $img->save();
             } else {
                 $image_name = $postCategory->image;
             }
