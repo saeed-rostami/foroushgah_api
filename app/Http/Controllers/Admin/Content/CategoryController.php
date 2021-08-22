@@ -40,7 +40,7 @@ class CategoryController extends Controller
 
 //            STORE IMAGE FILE
             $image_name = $request->name . $request->image->getClientOriginalName();
-            $request->file('image')->storeAs('images', $image_name, 'public');
+            $request->file('image')->storeAs('images/content/category', $image_name, 'public');
 
 //            PREPARE AND STORE TAGS
             $tags = $this->prepareTags($request);
@@ -55,10 +55,10 @@ class CategoryController extends Controller
             $postCategory->image = $image_name;
             $postCategory->save();
 
-            $img = Image::make('storage/images/'.$image_name)->resize('525', '295');
+            $img = Image::make('storage/images/content/category/' . $image_name)->resize('525', '295');
             $img->save();
 
-//RESPONSE
+            //RESPONSE
             return response()->json([
                 'message' => 'با موفقیت ایجاد شد',
                 'status' => 200
@@ -96,10 +96,10 @@ class CategoryController extends Controller
 
             //            STORE IMAGE FILE
             if ($request->hasFile('image')) {
-                File::delete("storage/images/" . $postCategory->image);
+                File::delete("storage/images/content/category/" . $postCategory->image);
                 $image_name = $request->name . $request->image->getClientOriginalName();
-                $request->file('image')->storeAs('images', $image_name, 'public');
-                $img = Image::make('storage/images/'.$image_name)->resize('525', '295');
+                $request->file('image')->storeAs('images/content/category', $image_name, 'public');
+                $img = Image::make('storage/images/content/category/' . $image_name)->resize('525', '295');
                 $img->save();
             } else {
                 $image_name = $postCategory->image;
@@ -151,25 +151,25 @@ class CategoryController extends Controller
      * @throws ValidationException
      */
     protected function validation(Request $request, $method)
-    {
-        if ($method == 'store') {
-            $this->validate($request, [
-                'name' => 'required|string|:max:32|min:2',
-                'description' => 'required|string|min:5',
-                'image' => 'image:mimes:jpg,png,jpeg|max:2048',
-                'status' => 'required',
-                'tags' => 'string'
-            ]);
-        } else {
-            $this->validate($request, [
-                'name' => 'required|string|:max:32|min:2',
-                'description' => 'required|string|min:5',
-                'status' => 'required',
-                'tags' => 'string'
-            ]);
-        }
-
+{
+    if ($method == 'store') {
+        $this->validate($request, [
+            'name' => 'required|string|:max:32|min:2',
+            'description' => 'required|string|min:5',
+            'image' => 'image:mimes:jpg,png,jpeg|max:2048',
+            'status' => 'required',
+            'tags' => 'string'
+        ]);
+    } else {
+        $this->validate($request, [
+            'name' => 'required|string|:max:32|min:2',
+            'description' => 'required|string|min:5',
+            'status' => 'required',
+            'tags' => 'string'
+        ]);
     }
+
+}
 
     /**
      * @param Request $request

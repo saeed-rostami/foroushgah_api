@@ -27,5 +27,11 @@ $router->group(['namespace' => 'Admin', 'prefix' => 'admin'], function () use ($
             $router->post('/', 'CategoryController@store');
             $router->put('/{id}', 'CategoryController@update');
         });
+        $router->group(['prefix' => 'post'], function () use ($router) {
+            $router->get('/', 'PostController@index');
+            $router->delete('/{id}', 'PostController@destroy');
+            $router->post('/', 'PostController@store');
+            $router->put('/{id}', 'PostController@update');
+        });
     });
 });
