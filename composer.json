@@ -7,6 +7,7 @@
     "require": {
         "php": "^7.3|^8.0",
         "flipbox/lumen-generator": "^8.2",
+        "hekmatinasser/verta": "^1.12",
         "intervention/image": "^2.6",
         "irazasyed/larasupport": "^1.7",
         "laravel/lumen-framework": "^8.0"

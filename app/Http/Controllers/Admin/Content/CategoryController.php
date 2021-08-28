@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Content;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\PostCategoriesResource;
 use App\Models\PostCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -19,7 +20,7 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $postCategories = PostCategory::all();
+        $postCategories = PostCategoriesResource::collection(PostCategory::all());
         return response()->json([
             'categories' => $postCategories
         ]);
@@ -95,15 +96,7 @@ class CategoryController extends Controller
             $postCategory = PostCategory::query()->find($id);
 
             //            STORE IMAGE FILE
-            if ($request->hasFile('image')) {
-                File::delete("storage/images/content/category/" . $postCategory->image);
-                $image_name = $request->name . $request->image->getClientOriginalName();
-                $request->file('image')->storeAs('images/content/category', $image_name, 'public');
-                $img = Image::make('storage/images/content/category/' . $image_name)->resize('525', '295');
-                $img->save();
-            } else {
-                $image_name = $postCategory->image;
-            }
+            $image_name = $this->prepareImage($request, $postCategory);
 
             //            PREPARE AND STORE TAGS
             $tags = $this->prepareTags($request);
@@ -121,7 +114,7 @@ class CategoryController extends Controller
 
             //RESPONSE
             return response()->json([
-                'message' => 'با موفقیت ایجاد شد',
+                'message' => 'با موفقیت بروز شد',
                 'status' => 200
             ]);
         } catch (ValidationException $error) {
@@ -151,25 +144,25 @@ class CategoryController extends Controller
      * @throws ValidationException
      */
     protected function validation(Request $request, $method)
-{
-    if ($method == 'store') {
-        $this->validate($request, [
-            'name' => 'required|string|:max:32|min:2',
-            'description' => 'required|string|min:5',
-            'image' => 'image:mimes:jpg,png,jpeg|max:2048',
-            'status' => 'required',
-            'tags' => 'string'
-        ]);
-    } else {
-        $this->validate($request, [
-            'name' => 'required|string|:max:32|min:2',
-            'description' => 'required|string|min:5',
-            'status' => 'required',
-            'tags' => 'string'
-        ]);
-    }
+    {
+        if ($method == 'store') {
+            $this->validate($request, [
+                'name' => 'required|string|:max:32|min:2',
+                'description' => 'required|string|min:5',
+                'image' => 'image:mimes:jpg,png,jpeg|max:2048',
+                'status' => 'required',
+                'tags' => 'string'
+            ]);
+        } else {
+            $this->validate($request, [
+                'name' => 'required|string|:max:32|min:2',
+                'description' => 'required|string|min:5',
+                'status' => 'required',
+                'tags' => 'string'
+            ]);
+        }
 
-}
+    }
 
     /**
      * @param Request $request
@@ -183,5 +176,24 @@ class CategoryController extends Controller
             $tags[] = $tag;
         }
         return $tags;
+    }
+
+    /**
+     * @param Request $request
+     * @param $postCategory
+     * @return string
+     */
+    protected function prepareImage(Request $request, $postCategory)
+    {
+        if ($request->hasFile('image')) {
+            File::delete("storage/images/content/category/" . $postCategory->image);
+            $image_name = $request->name . $request->image->getClientOriginalName();
+            $request->file('image')->storeAs('images/content/category', $image_name, 'public');
+            $img = Image::make('storage/images/content/category/' . $image_name)->resize('525', '295');
+            $img->save();
+        } else {
+            $image_name = $postCategory->image;
+        }
+        return $image_name;
     }
 }

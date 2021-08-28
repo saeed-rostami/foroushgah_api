@@ -3,14 +3,14 @@
 namespace App\Http\Controllers\Admin\Content;
 
 use App\Http\Controllers\Controller;
-use App\Models\PostCategory;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
+use App\Http\Resources\PostResource;
 use App\Models\Post;
+use App\Models\PostCategory;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
-use Intervention\Image\Facades\Image;
 use Illuminate\Validation\ValidationException;
+use Intervention\Image\Facades\Image;
 
 
 class PostController extends Controller
@@ -22,7 +22,7 @@ class PostController extends Controller
      */
     public function index()
     {
-        $posts = Post::all();
+        $posts = PostResource::collection(Post::all());
         return response()->json([
             'posts' => $posts
         ]);
@@ -46,7 +46,6 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-
         try {
 //            VALIDATION REQUEST
             $this->validation($request, 'store');
@@ -58,21 +57,19 @@ class PostController extends Controller
 //            PREPARE AND STORE TAGS
             $tags = $this->prepareTags($request);
 
-            $category = PostCategory::query()
-                ->where('name', $request->category)
-                ->first();
+            $categoryID = $this->getCategory($request);
 
 //            STORE FINALLY
             $post = new Post();
             $post->title = $request->title;
-            $post->category_id = $category->id;
+            $post->category_id = $categoryID;
             $post->slug = Str::slug($request->title);
             $post->body = $request->body;
             $post->summary = $request->summary;
             $post->status = $request->status;
             $post->commentable = $request->commentable;
             $post->tags = $tags;
-            $post->published_at = Carbon::now();
+            $post->published_at = $request->published_at;
 //            $post->author_id = 3;
 //            TODO USERS TABLES SHOULD NOT BE EMPTY
             $post->image = $image_name;
@@ -128,20 +125,12 @@ class PostController extends Controller
             $post = Post::query()->find($id);
 
             //            STORE IMAGE FILE
-            if ($request->hasFile('image')) {
-                File::delete("storage/images/content/post/" . $post->image);
-                $image_name = $request->title . $request->image->getClientOriginalName();
-
-                $request->file('image')->storeAs('images/content/post', $image_name, 'public');
-                $img = Image::make('storage/images/content/post/' . $image_name)->resize('525', '295');
-                $img->save();
-            } else {
-                $image_name = $post->image;
-            }
+            $image_name = $this->prepareImage($request, $post);
 
             //            PREPARE AND STORE TAGS
             $tags = $this->prepareTags($request);
 
+//            GET CATEGORY_ID
             $categoryID = $this->getCategory($request);
 
             //            STORE FINALLY
@@ -153,7 +142,7 @@ class PostController extends Controller
                 'summary' => $request->summary,
                 'status' => $request->status,
                 'commentable' => $request->commentable,
-                'published_at' => Carbon::now(),
+                'published_at' => $request->published_at,
                 'tags' => $tags,
                 'image' => $image_name
             ]);
@@ -161,7 +150,7 @@ class PostController extends Controller
 
             //RESPONSE
             return response()->json([
-                'message' => 'با موفقیت ایجاد شد',
+                'message' => 'با موفقیت بروز شد',
                 'status' => 200
             ]);
         } catch (ValidationException $error) {
@@ -190,7 +179,7 @@ class PostController extends Controller
         if ($method == 'store') {
             $this->validate($request, [
                 'title' => 'required|string|:max:32|min:2',
-                'category' => 'required',
+                'category_id' => 'required',
                 'body' => 'required|string|min:5',
                 'summary' => 'required|string|min:5',
                 'image' => 'image:mimes:jpg,png,jpeg|max:2048',
@@ -201,7 +190,7 @@ class PostController extends Controller
         } else {
             $this->validate($request, [
                 'title' => 'required|string|:max:32|min:2',
-                'category' => 'required',
+                'category_id' => 'required',
                 'body' => 'required|string|min:5',
                 'summary' => 'required|string|min:5',
                 'status' => 'required',
@@ -227,14 +216,34 @@ class PostController extends Controller
      */
     protected function getCategory(Request $request)
     {
-        if (is_numeric($request->category)) {
-            $categoryID = $request->category;
+        if (is_numeric($request->category_id)) {
+            $categoryID = $request->category_id;
         } else {
             $category = PostCategory::query()
-                ->where('name', $request->category)
+                ->where('name', $request->category_id)
                 ->first();
             $categoryID = $category->id;
         }
         return $categoryID;
+    }
+
+    /**
+     * @param Request $request
+     * @param $post
+     * @return string
+     */
+    protected function prepareImage(Request $request, $post)
+    {
+        if ($request->hasFile('image')) {
+            File::delete("storage/images/content/post/" . $post->image);
+            $image_name = $request->title . $request->image->getClientOriginalName();
+
+            $request->file('image')->storeAs('images/content/post', $image_name, 'public');
+            $img = Image::make('storage/images/content/post/' . $image_name)->resize('525', '295');
+            $img->save();
+        } else {
+            $image_name = $post->image;
+        }
+        return $image_name;
     }
 }

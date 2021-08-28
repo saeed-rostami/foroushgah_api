@@ -10,23 +10,19 @@ class PostCategory extends Model
 {
     use SoftDeletes;
     protected $fillable = ['name', 'description', 'image', 'tags', 'status'];
-    protected $appends = ['status_text'];
     protected $casts = ['tags' => Json::class];
 
     public function setStatusAttribute($value)
     {
-        if ($value == 'فعال')
+        if ($value == 'فعال' or $value == 1)
             $this->attributes['status'] = 1;
         else
             $this->attributes['status'] = 0;
 
     }
 
-    public function getStatusTextAttribute()
+    public function posts()
     {
-        if ($this->status == 1)
-            return 'فعال';
-        else
-            return 'غیر فعال';
+        return $this->hasMany(Post::class);
     }
 }
