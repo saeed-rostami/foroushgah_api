@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin\Content;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\PostResource;
+use App\Http\Resources\Content\PostResource;
 use App\Models\Post;
 use App\Models\PostCategory;
 use Illuminate\Http\Request;
@@ -81,7 +81,7 @@ class PostController extends Controller
             //RESPONSE
             return response()->json([
                 'message' => 'با موفقیت ایجاد شد',
-                'status' => 200
+                'status' => 201
             ]);
         } catch (ValidationException $error) {
             return response($error->errors());
@@ -99,16 +99,6 @@ class PostController extends Controller
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.
@@ -151,7 +141,7 @@ class PostController extends Controller
             //RESPONSE
             return response()->json([
                 'message' => 'با موفقیت بروز شد',
-                'status' => 200
+                'status' => 204
             ]);
         } catch (ValidationException $error) {
             return response($error->errors());
@@ -170,7 +160,7 @@ class PostController extends Controller
         $post->delete();
         return response()->json([
             'message' => 'با موفقیت حذف شد',
-            'status' => 200
+            'status' => 204
         ]);
     }
 
@@ -178,10 +168,11 @@ class PostController extends Controller
     {
         if ($method == 'store') {
             $this->validate($request, [
-                'title' => 'required|string|:max:32|min:2',
+                'title' => 'required|string|max:32|min:2',
                 'category_id' => 'required',
                 'body' => 'required|string|min:5',
                 'summary' => 'required|string|min:5',
+                'slug' => 'string|unique:posts',
                 'image' => 'image:mimes:jpg,png,jpeg|max:2048',
                 'status' => 'required',
                 'commentable' => 'required',
@@ -189,9 +180,10 @@ class PostController extends Controller
             ]);
         } else {
             $this->validate($request, [
-                'title' => 'required|string|:max:32|min:2',
+                'title' => 'required|string|max:32|min:2',
                 'category_id' => 'required',
                 'body' => 'required|string|min:5',
+                'slug' => 'string|unique:posts',
                 'summary' => 'required|string|min:5',
                 'status' => 'required',
                 'commentable' => 'required',

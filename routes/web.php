@@ -44,5 +44,12 @@ $router->group(['namespace' => 'Admin', 'prefix' => 'admin'], function () use ($
             $router->post('/', 'MenuController@store');
             $router->put('/{id}', 'MenuController@update');
         });
+        //        faq
+        $router->group(['prefix' => 'faq'], function () use ($router) {
+            $router->get('/', 'FAQController@index');
+            $router->delete('/{id}', 'FAQController@destroy');
+            $router->post('/', 'FAQController@store');
+            $router->put('/{id}', 'FAQController@update');
+        });
     });
 });

@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Http\Resources;
+namespace App\Http\Resources\Content;
 
-use Hekmatinasser\Verta\Verta;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class PostResource extends JsonResource

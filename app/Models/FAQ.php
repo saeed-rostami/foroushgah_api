@@ -6,11 +6,13 @@ use App\Casts\Json;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class PostCategory extends Model
+class FAQ extends Model
 {
     use SoftDeletes;
     protected $guarded = ['id'];
+    protected $table = 'faqs';
     protected $casts = ['tags' => Json::class];
+
 
     public function setStatusAttribute($value)
     {
@@ -18,11 +20,5 @@ class PostCategory extends Model
             $this->attributes['status'] = 1;
         else
             $this->attributes['status'] = 0;
-
-    }
-
-    public function posts()
-    {
-        return $this->hasMany(Post::class);
     }
 }

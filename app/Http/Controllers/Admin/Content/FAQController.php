@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Admin\Content;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Content\MenuResource;
-use App\Models\Menu;
+use App\Http\Resources\Content\FAQResource;
+use App\Models\FAQ;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
-class MenuController extends Controller
+
+class FAQController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -17,9 +19,9 @@ class MenuController extends Controller
      */
     public function index()
     {
-        $menus = MenuResource::collection(Menu::all());
+        $faqs = FAQResource::collection(FAQ::all());
         return response()->json([
-            'menus' => $menus,
+            'faqs' => $faqs
         ]);
     }
 
@@ -35,12 +37,15 @@ class MenuController extends Controller
         try {
             $this->validation($request);
 
-            $menu = new Menu();
-            $menu->name = $request->name;
-            $menu->url = $request->url;
-            $menu->status = $request->status;
-            $menu->parent_id = $request->parent_id;
-            $menu->save();
+            $tags = $this->prepareTags($request);
+
+            $faq = new FAQ();
+            $faq->question = $request->question;
+            $faq->answer = $request->answer;
+            $faq->slug = Str::slug($request->question);
+            $faq->status = $request->status;
+            $faq->tags = $tags;
+            $faq->save();
 
             return response()->json([
                 'message' => 'با موفقیت ایجاد شد',
@@ -48,8 +53,19 @@ class MenuController extends Controller
             ]);
 
         } catch (ValidationException $error) {
-            throw $error->errors();
+            return response($error->errors());
         }
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  \App\FAQ $fAQ
+     * @return \Illuminate\Http\Response
+     */
+    public function show(FAQ $fAQ)
+    {
+        //
     }
 
 
@@ -57,26 +73,32 @@ class MenuController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request $request
-     * @param  int $id
+     * @param  \App\FAQ $fAQ
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
+
         try {
             $this->validation($request);
 
-            $menu = Menu::query()->find($id);
-            $menu->update([
-                'name' => $request->name,
-                'url' => $request->url,
+
+            $tags = $this->prepareTags($request);
+            $faq = FAQ::query()->find($id);
+
+            $faq->update([
+                'question' => $request->question,
+                'answer' => $request->answer,
+                'slug' => Str::slug($request->question),
                 'status' => $request->status,
-                'parent_id' => $request->parent_id,
+                'tags' => $tags,
             ]);
 
             return response()->json([
                 'message' => 'با موفقیت بروز شد',
                 'status' => 204
-            ] );
+            ]);
+
         } catch (ValidationException $error) {
             return response($error->errors());
         }
@@ -85,28 +107,38 @@ class MenuController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int $id
+     * @param  \App\FAQ $fAQ
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
-        $menu = Menu::query()->find($id);
-        $menu->delete();
+        $faq = FAQ::query()->find($id);
+        $faq->delete();
         return response()->json([
             'message' => 'با موفقیت حذف شد',
             'status' => 204
         ]);
+
     }
 
     protected function validation(Request $request)
     {
+
         $this->validate($request, [
-            'name' => 'required|string|max:32|min:2',
-            'url' => 'required|string',
+            'question' => 'required|string|min:2',
+            'answer' => 'required|string',
+            'slug' => 'string|unique:faqs',
             'status' => 'required',
-            'parent_id' => 'nullable'
+            'tags' => 'string'
         ]);
+    }
 
-
+    protected function prepareTags(Request $request)
+    {
+        $arrayTags = explode(',', $request->tags);
+        foreach ($arrayTags as $tag) {
+            $tags[] = $tag;
+        }
+        return $tags;
     }
 }

@@ -10,22 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Post extends Model
 {
     use SoftDeletes;
-    protected $fillable = [
-        'title',
-        'body',
-        'summary',
-        'image',
-        'tags',
-        'status',
-        'commentable',
-        'published_at',
-        'category_id'
-    ];
-//    protected $appends = [
-//        'category_text',
-//        'published_text',
-//        'published',
-//    ];
+    protected $guarded = ['id'];
     protected $casts = ['tags' => Json::class];
 
     public function setStatusAttribute($value)
