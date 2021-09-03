@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Content\PostResource;
 use App\Models\Post;
 use App\Models\PostCategory;
+use App\Services\ImageIntervention;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
@@ -75,8 +76,8 @@ class PostController extends Controller
             $post->image = $image_name;
             $post->save();
 
-            $img = Image::make('storage/images/content/post/' . $image_name)->resize('525', '295');
-            $img->save();
+            $path = "storage/images/content/post/";
+            ImageIntervention::Resize($path, $image_name, '525', '295');
 
             //RESPONSE
             return response()->json([
@@ -231,8 +232,8 @@ class PostController extends Controller
             $image_name = $request->title . $request->image->getClientOriginalName();
 
             $request->file('image')->storeAs('images/content/post', $image_name, 'public');
-            $img = Image::make('storage/images/content/post/' . $image_name)->resize('525', '295');
-            $img->save();
+            $path = "storage/images/content/category/";
+            ImageIntervention::Resize($path, $image_name, '525', '295');
         } else {
             $image_name = $post->image;
         }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin\Content;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Content\PostCategoriesResource;
 use App\Models\PostCategory;
+use App\Services\ImageIntervention;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
@@ -56,14 +57,14 @@ class CategoryController extends Controller
             $postCategory->image = $image_name;
             $postCategory->save();
 
-            $img = Image::make('storage/images/content/category/' . $image_name)->resize('525', '295');
-            $img->save();
+            $path = "storage/images/content/category/";
+            ImageIntervention::Resize($path, $image_name, '525', '295');
 
             //RESPONSE
             return response()->json([
                 'message' => 'با موفقیت ایجاد شد',
                 'status' => 201
-            ] );
+            ]);
 
         } catch (ValidationException $error) {
             return response($error->errors());
@@ -112,12 +113,15 @@ class CategoryController extends Controller
                 'image' => $image_name
             ]);
 
+            $path = "storage/images/content/category/";
+            ImageIntervention::Resize($path, $image_name, '525', '295');
+
 
             //RESPONSE
             return response()->json([
                 'message' => 'با موفقیت بروز شد',
                 'status' => 204
-            ] );
+            ]);
         } catch (ValidationException $error) {
             return response($error->errors());
         }
@@ -136,7 +140,7 @@ class CategoryController extends Controller
         return response()->json([
             'message' => 'با موفقیت حذف شد',
             'status' => 204
-        ] );
+        ]);
 
     }
 
@@ -192,8 +196,6 @@ class CategoryController extends Controller
             File::delete("storage/images/content/category/" . $postCategory->image);
             $image_name = $request->name . $request->image->getClientOriginalName();
             $request->file('image')->storeAs('images/content/category', $image_name, 'public');
-            $img = Image::make('storage/images/content/category/' . $image_name)->resize('525', '295');
-            $img->save();
         } else {
             $image_name = $postCategory->image;
         }

@@ -62,6 +62,7 @@ class Post extends Model
     public function getPublishedTextAttribute()
     {
         $v = new Verta($this->published_at);
-        return $v->formatDifference();
+        $now = Verta::now();
+        return $v < $now ? 'منتشر شده' : $v->formatDifference();
     }
 }
