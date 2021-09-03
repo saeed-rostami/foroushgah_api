@@ -138,6 +138,9 @@ class PostController extends Controller
                 'image' => $image_name
             ]);
 
+            $path = "storage/images/content/post/";
+            ImageIntervention::Resize($path, $image_name, '525', '295');
+
 
             //RESPONSE
             return response()->json([
@@ -232,8 +235,6 @@ class PostController extends Controller
             $image_name = $request->title . $request->image->getClientOriginalName();
 
             $request->file('image')->storeAs('images/content/post', $image_name, 'public');
-            $path = "storage/images/content/category/";
-            ImageIntervention::Resize($path, $image_name, '525', '295');
         } else {
             $image_name = $post->image;
         }
