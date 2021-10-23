@@ -15,9 +15,9 @@ class Post extends Model
 
     public function setStatusAttribute($value)
     {
-        if ($value == 'فعال' or $value == 1)
+        if ($value == "true")
             $this->attributes['status'] = 1;
-        else
+        else if ($value == "false")
             $this->attributes['status'] = 0;
 
     }
@@ -25,9 +25,9 @@ class Post extends Model
 
     public function setCommentableAttribute($value)
     {
-        if ($value == 'فعال' or $value == 1)
+        if ($value == "true")
             $this->attributes['commentable'] = 1;
-        else
+        else if ($value == "false")
             $this->attributes['commentable'] = 0;
 
     }

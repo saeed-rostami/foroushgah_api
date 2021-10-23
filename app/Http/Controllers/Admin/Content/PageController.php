@@ -127,7 +127,7 @@ class PageController extends Controller
         $this->validate($request, [
             'title' => 'required|string|min:2',
             'body' => 'required|string',
-            'slug' => 'string|unique:faqs',
+            'slug' => 'string|unique:pages,slug',
             'status' => 'required',
             'tags' => 'string'
         ]);

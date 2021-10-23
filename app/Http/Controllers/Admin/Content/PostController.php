@@ -11,7 +11,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
-use Intervention\Image\Facades\Image;
 
 
 class PostController extends Controller
@@ -176,7 +175,7 @@ class PostController extends Controller
                 'category_id' => 'required',
                 'body' => 'required|string|min:5',
                 'summary' => 'required|string|min:5',
-                'slug' => 'string|unique:posts',
+                'slug' => 'string|unique:posts,slug',
                 'image' => 'image:mimes:jpg,png,jpeg|max:2048',
                 'status' => 'required',
                 'commentable' => 'required',
@@ -187,7 +186,7 @@ class PostController extends Controller
                 'title' => 'required|string|max:32|min:2',
                 'category_id' => 'required',
                 'body' => 'required|string|min:5',
-                'slug' => 'string|unique:posts',
+                'slug' => 'string|unique:posts,slug',
                 'summary' => 'required|string|min:5',
                 'status' => 'required',
                 'commentable' => 'required',

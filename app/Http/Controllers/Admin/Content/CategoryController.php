@@ -10,7 +10,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
-use Intervention\Image\Facades\Image;
 
 class CategoryController extends Controller
 {
@@ -42,6 +41,7 @@ class CategoryController extends Controller
 
 //            STORE IMAGE FILE
             $image_name = $request->name . $request->image->getClientOriginalName();
+
             $request->file('image')->storeAs('images/content/category', $image_name, 'public');
 
 //            PREPARE AND STORE TAGS
@@ -154,7 +154,7 @@ class CategoryController extends Controller
             $this->validate($request, [
                 'name' => 'required|string|max:32|min:2',
                 'description' => 'required|string|min:5',
-                'slug' => 'string|unique:post_categories',
+                'slug' => 'string|unique:post_categories,slug',
                 'image' => 'image:mimes:jpg,png,jpeg|max:2048',
                 'status' => 'required',
                 'tags' => 'string'
@@ -163,7 +163,7 @@ class CategoryController extends Controller
             $this->validate($request, [
                 'name' => 'required|string|max:32|min:2',
                 'description' => 'required|string|min:5',
-                'slug' => 'string|unique:post_categories',
+                'slug' => 'string|unique:post_categories,slug',
                 'status' => 'required',
                 'tags' => 'string'
             ]);

@@ -114,11 +114,11 @@ class FAQController extends Controller
     {
         $faq = FAQ::query()->find($id);
         $faq->delete();
+
         return response()->json([
             'message' => 'با موفقیت حذف شد',
             'status' => 204
         ]);
-
     }
 
     protected function validation(Request $request)
@@ -127,7 +127,7 @@ class FAQController extends Controller
         $this->validate($request, [
             'question' => 'required|string|min:2',
             'answer' => 'required|string',
-            'slug' => 'string|unique:faqs',
+            'slug' => 'string|unique:faqs,slug',
             'status' => 'required',
             'tags' => 'string'
         ]);
