@@ -22,9 +22,9 @@ class CategoryController extends Controller
     public function index()
     {
 
-        $postCategories = Cache::remember('postCategories', 3600, function () {
-            return PostCategoriesResource::collection(PostCategory::all());
-        });
+//        $postCategories = Cache::remember('postCategories', 3600, function () {
+            $postCategories= PostCategoriesResource::collection(PostCategory::all());
+//        });
 
 
         return response()->json([
