@@ -27,6 +27,11 @@ $app = new Laravel\Lumen\Application(
 //class_alias('Illuminate\Support\Facades\Storage', 'Storage');
 class_alias(Intervention\Image\Facades\Image::class, 'Image');
 
+
+//Sluggable
+$app->register(Cviebrock\EloquentSluggable\ServiceProvider::class);
+
+
 $app->withFacades();
 $app->withEloquent();
 /*
@@ -60,6 +65,7 @@ $app->singleton(
 | the default version. You may register other files below as needed.
 |
 */
+
 $app->configure('app');
 
 /*
@@ -99,6 +105,7 @@ $app->register(Irazasyed\Larasupport\Providers\ArtisanServiceProvider::class);
 $app->register(Flipbox\LumenGenerator\LumenGeneratorServiceProvider::class);
 //Intervention
 $app->register(Intervention\Image\ImageServiceProvider::class);
+
 
 // $app->register(App\Providers\AppServiceProvider::class);
 // $app->register(App\Providers\AuthServiceProvider::class);

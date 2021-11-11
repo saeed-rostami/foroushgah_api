@@ -3,14 +3,24 @@
 namespace App\Models;
 
 use App\Casts\Json;
+use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PostCategory extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, Sluggable;
     protected $guarded = ['id'];
     protected $casts = ['tags' => Json::class];
+
+    public function sluggable(): array
+    {
+        return [
+            'slug' => [
+                'source' => 'name'
+            ]
+        ];
+    }
 
     public function setStatusAttribute($value)
     {

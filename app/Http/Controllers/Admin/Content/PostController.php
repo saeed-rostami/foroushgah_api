@@ -8,6 +8,7 @@ use App\Models\Post;
 use App\Models\PostCategory;
 use App\Services\ImageIntervention;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -22,7 +23,9 @@ class PostController extends Controller
      */
     public function index()
     {
-        $posts = PostResource::collection(Post::all());
+        $posts = Cache::remember('posts' , 3600, function (){
+           return PostResource::collection(Post::all());
+        });
         return response()->json([
             'posts' => $posts
         ]);

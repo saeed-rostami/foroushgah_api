@@ -7,6 +7,7 @@ use App\Http\Resources\Content\PostCategoriesResource;
 use App\Models\PostCategory;
 use App\Services\ImageIntervention;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -20,7 +21,12 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $postCategories = PostCategoriesResource::collection(PostCategory::all());
+
+        $postCategories = Cache::remember('postCategories', 3600, function () {
+            return PostCategoriesResource::collection(PostCategory::all());
+        });
+
+
         return response()->json([
             'categories' => $postCategories
         ]);
