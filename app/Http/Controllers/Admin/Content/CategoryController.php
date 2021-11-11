@@ -4,10 +4,9 @@ namespace App\Http\Controllers\Admin\Content;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Content\PostCategoriesResource;
+use App\Http\Services\Image\ImageService;
 use App\Models\PostCategory;
-use App\Services\ImageIntervention;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -21,10 +20,10 @@ class CategoryController extends Controller
      */
     public function index()
     {
-
-        $postCategories = Cache::remember('postCategories', 3600, function () {
-            return PostCategoriesResource::collection(PostCategory::all());
-        });
+//
+//        $postCategories = Cache::remember('postCategories', 2, function () {
+            $postCategories=  PostCategoriesResource::collection(PostCategory::all());
+//        });
 
 
         return response()->json([
@@ -38,7 +37,7 @@ class CategoryController extends Controller
      * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, ImageService $imageService)
     {
 
         try {
@@ -46,9 +45,11 @@ class CategoryController extends Controller
             $this->validation($request, 'store');
 
 //            STORE IMAGE FILE
-            $image_name = $request->name . $request->image->getClientOriginalName();
-
-            $request->file('image')->storeAs('images/content/category', $image_name, 'public');
+            if ($request->file('image')) {
+                $requestImage = $request->file('image');
+                $imageService->setExclusiveDirectory('images' . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . 'category');
+                $image = $imageService->createIndexAndSave($requestImage);
+            }
 
 //            PREPARE AND STORE TAGS
             $tags = $this->prepareTags($request);
@@ -60,11 +61,9 @@ class CategoryController extends Controller
             $postCategory->description = $request->description;
             $postCategory->status = $request->status;
             $postCategory->tags = $tags;
-            $postCategory->image = $image_name;
+            $postCategory->image = $image;
             $postCategory->save();
 
-            $path = "storage/images/content/category/";
-            ImageIntervention::Resize($path, $image_name, '525', '295');
 
             //RESPONSE
             return response()->json([
