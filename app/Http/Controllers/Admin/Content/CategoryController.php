@@ -7,7 +7,6 @@ use App\Http\Resources\Content\PostCategoriesResource;
 use App\Http\Services\Image\ImageService;
 use App\Models\PostCategory;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -20,10 +19,9 @@ class CategoryController extends Controller
      */
     public function index()
     {
-//
-//        $postCategories = Cache::remember('postCategories', 2, function () {
-            $postCategories=  PostCategoriesResource::collection(PostCategory::all());
-//        });
+        $postCategories = Cache::remember('postCategories', 2, function () {
+            return PostCategoriesResource::collection(PostCategory::all());
+        });
 
 
         return response()->json([
@@ -45,11 +43,7 @@ class CategoryController extends Controller
             $this->validation($request, 'store');
 
 //            STORE IMAGE FILE
-            if ($request->file('image')) {
-                $requestImage = $request->file('image');
-                $imageService->setExclusiveDirectory('images' . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . 'category');
-                $image = $imageService->createIndexAndSave($requestImage);
-            }
+            $image = $this->prepareImage($request, null, $imageService);
 
 //            PREPARE AND STORE TAGS
             $tags = $this->prepareTags($request);
@@ -93,9 +87,10 @@ class CategoryController extends Controller
      *
      * @param  \Illuminate\Http\Request $request
      * @param  int $id
+     * @param ImageService $imageService
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $id, ImageService $imageService)
     {
         try {
             //            VALIDATION REQUEST
@@ -103,7 +98,7 @@ class CategoryController extends Controller
             $postCategory = PostCategory::query()->find($id);
 
             //            STORE IMAGE FILE
-            $image_name = $this->prepareImage($request, $postCategory);
+            $image = $this->prepareImage($request, $postCategory, $imageService);
 
             //            PREPARE AND STORE TAGS
             $tags = $this->prepareTags($request);
@@ -115,11 +110,8 @@ class CategoryController extends Controller
                 'description' => $request->description,
                 'status' => $request->status,
                 'tags' => $tags,
-                'image' => $image_name
+                'image' => $image
             ]);
-
-            $path = "storage/images/content/category/";
-            ImageIntervention::Resize($path, $image_name, '525', '295');
 
 
             //RESPONSE
@@ -193,17 +185,19 @@ class CategoryController extends Controller
     /**
      * @param Request $request
      * @param $postCategory
+     * @param $imageService
      * @return string
      */
-    protected function prepareImage(Request $request, $postCategory)
+    protected function prepareImage(Request $request, $postCategory = null, $imageService)
     {
-        if ($request->hasFile('image')) {
-            File::delete("storage/images/content/category/" . $postCategory->image);
-            $image_name = $request->name . $request->image->getClientOriginalName();
-            $request->file('image')->storeAs('images/content/category', $image_name, 'public');
-        } else {
-            $image_name = $postCategory->image;
+        if ($request->file('image')) {
+            if (!empty($postCategory->image)) {
+                $imageService->deleteDirectoryAndFiles($postCategory->image['directory']);
+            }
+            $requestImage = $request->file('image');
+            $imageService->setExclusiveDirectory('images' . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . 'category');
+            $image = $imageService->createIndexAndSave($requestImage);
+            return $image;
         }
-        return $image_name;
     }
 }
