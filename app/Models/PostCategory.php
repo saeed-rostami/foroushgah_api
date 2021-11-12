@@ -11,7 +11,7 @@ class PostCategory extends Model
 {
     use SoftDeletes, Sluggable;
     protected $guarded = ['id'];
-    protected $casts = ['tags' => Json::class];
+    protected $casts = ['tags' => Json::class , 'image' => 'array'];
 
     public function sluggable(): array
     {

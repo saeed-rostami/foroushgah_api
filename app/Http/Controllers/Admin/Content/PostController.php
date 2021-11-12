@@ -4,12 +4,11 @@ namespace App\Http\Controllers\Admin\Content;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Content\PostResource;
+use App\Http\Services\Image\ImageService;
 use App\Models\Post;
 use App\Models\PostCategory;
-use App\Services\ImageIntervention;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -23,8 +22,8 @@ class PostController extends Controller
      */
     public function index()
     {
-        $posts = Cache::remember('posts' , 3600, function (){
-           return PostResource::collection(Post::all());
+        $posts = Cache::remember('posts', 3600, function () {
+            return PostResource::collection(Post::all());
         });
         return response()->json([
             'posts' => $posts
@@ -47,15 +46,13 @@ class PostController extends Controller
      * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, ImageService $imageService)
     {
         try {
 //            VALIDATION REQUEST
             $this->validation($request, 'store');
 
-//            STORE IMAGE FILE
-            $image_name = $request->name . $request->image->getClientOriginalName();
-            $request->file('image')->storeAs('images/content/post', $image_name, 'public');
+            $image = $this->prepareImage($request, null, $imageService);
 
 //            PREPARE AND STORE TAGS
             $tags = $this->prepareTags($request);
@@ -75,11 +72,8 @@ class PostController extends Controller
             $post->published_at = $request->published_at;
 //            $post->author_id = 3;
 //            TODO USERS TABLES SHOULD NOT BE EMPTY
-            $post->image = $image_name;
+            $post->image = $image;
             $post->save();
-
-            $path = "storage/images/content/post/";
-            ImageIntervention::Resize($path, $image_name, '525', '295');
 
             //RESPONSE
             return response()->json([
@@ -110,7 +104,7 @@ class PostController extends Controller
      * @param  int $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $id, ImageService $imageService)
     {
         try {
             //            VALIDATION REQUEST
@@ -118,7 +112,7 @@ class PostController extends Controller
             $post = Post::query()->find($id);
 
             //            STORE IMAGE FILE
-            $image_name = $this->prepareImage($request, $post);
+            $image = $this->prepareImage($request, $post, $imageService);
 
             //            PREPARE AND STORE TAGS
             $tags = $this->prepareTags($request);
@@ -137,11 +131,8 @@ class PostController extends Controller
                 'commentable' => $request->commentable,
                 'published_at' => $request->published_at,
                 'tags' => $tags,
-                'image' => $image_name
+                'image' => $image
             ]);
-
-            $path = "storage/images/content/post/";
-            ImageIntervention::Resize($path, $image_name, '525', '295');
 
 
             //RESPONSE
@@ -228,18 +219,20 @@ class PostController extends Controller
     /**
      * @param Request $request
      * @param $post
+     * @param $imageService
      * @return string
      */
-    protected function prepareImage(Request $request, $post)
+    protected function prepareImage(Request $request, $post = null, $imageService)
     {
-        if ($request->hasFile('image')) {
-            File::delete("storage/images/content/post/" . $post->image);
-            $image_name = $request->title . $request->image->getClientOriginalName();
-
-            $request->file('image')->storeAs('images/content/post', $image_name, 'public');
-        } else {
-            $image_name = $post->image;
+        if ($request->file('image')) {
+            if (!empty($post->image)) {
+                $imageService->deleteDirectoryAndFiles($post->image['directory']);
+            }
+            $requestImage = $request->file('image');
+            $imageService->setExclusiveDirectory('images' . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR
+                . 'post');
+            $image = $imageService->createIndexAndSave($requestImage);
+            return $image;
         }
-        return $image_name;
     }
 }
