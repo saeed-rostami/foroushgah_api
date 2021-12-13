@@ -65,4 +65,9 @@ class Post extends Model
         $now = Verta::now();
         return $v < $now ? 'منتشر شده' : $v->formatDifference();
     }
+
+    public function comments()
+    {
+        return $this->morphMany(Comment::class , 'commentable');
+    }
 }

@@ -23,10 +23,13 @@ class Menu extends Model
     public function setParentIdAttribute($value)
     {
         $parentID = $this->where('name', $value)->first();
-        if ($parentID)
-            $this->attributes['parent_id'] = $parentID->id;
-        else
+        if ($value == 'null') {
             $this->attributes['parent_id'] = null;
+        } else if ($parentID) {
+            $this->attributes['parent_id'] = $parentID->id;
+        } else
+            $this->attributes['parent_id'] = $value;
+
     }
 
 

@@ -58,5 +58,13 @@ $router->group(['namespace' => 'Admin', 'prefix' => 'admin'], function () use ($
             $router->post('/', 'PageController@store');
             $router->put('/{id}', 'PageController@update');
         });
+
+        //        comment
+        $router->group(['prefix' => 'comment'], function () use ($router) {
+            $router->get('/', 'CommentController@index');
+            $router->delete('/{id}', 'CommentController@destroy');
+            $router->post('/', 'CommentController@store');
+            $router->put('/{id}', 'CommentController@confirmation');
+        });
     });
 });
